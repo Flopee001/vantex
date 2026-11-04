@@ -18,7 +18,7 @@ st.markdown(f"""
     <script>
       window.OneSignal = window.OneSignal || [];
       OneSignal.push(function() {
-        OneSignal.init({
+        OneSignal.inicialização({
           appId: "{ONESIGNAL_APP_ID}",
           safari_web_id: "web.onesignal.auto.ia_trader_ezequiel",
           notifyButton: { enable: true }
