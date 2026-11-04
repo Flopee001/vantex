@@ -4,13 +4,17 @@ import yfinance as yf
 import numpy as np
 
 # --------------------------------------------------------
-# 1. SEGURANÇA INTEGRADA (SENHA FIXA PARA REPOSITÓRIO PÚBLICO)
+# 1. CONFIGURAÇÃO INICIAL DO APP (OBRIGATÓRIO SER A PRIMEIRA)
+# --------------------------------------------------------
+st.set_page_config(page_title="IA Trader EUA - Public App", page_icon="📈", layout="wide")
+
+# --------------------------------------------------------
+# 2. CONFIGURAÇÃO DA CHAVE SECRETA E SISTEMA DE NOTIFICAÇÃO
 # --------------------------------------------------------
 SENHA_CORRETA = "EZEQUIEL"
-# ⚠️ ADICIONE SEU ID DO ONESIGNAL DENTRO DAS ASPAS ABAIXO:
-ONESIGNAL_APP_ID = "COLE_AQUI_O_SEU_ID_REAL"
 
-st.set_page_config(page_title="IA Trader EUA - Public App", page_icon="📈", layout="wide")
+# ⚠️ ADICIONE SEU ID DO ONESIGNAL ENTRE AS ASPAS ABAIXO:
+ONESIGNAL_APP_ID = "COLE_AQUI_O_SEU_ID_REAL"
 
 # Conexão JavaScript para ativar as notificações push no seu celular
 st.markdown(f"""
@@ -18,22 +22,25 @@ st.markdown(f"""
     <script>
       window.OneSignal = window.OneSignal || [];
       OneSignal.push(function() {
-        OneSignal.inicialização({
+        OneSignal.init({
           appId: "{ONESIGNAL_APP_ID}",
           safari_web_id: "web.onesignal.auto.ia_trader_ezequiel",
-          notifyButton: { enable: true }
+          notifyButton: { enable: true },
+        });
+      });
     </script>
 """, unsafe_allow_html=True)
 
 if "autenticado" not in st.session_state:
     st.session_state["autenticado"] = False
 
-# Tela de Bloqueio Obrigatória (Pede a senha logo de cara)
+# Tela de Bloqueio Obrigatória (Senha fixa para o repositório público)
 if not st.session_state["autenticado"]:
     st.markdown("<h2 style='text-align: center; margin-top: 50px;'>🔒 Painel Restrito - IA Trader EUA</h2>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
     with col2:
-        senha_digitada = st.text_input("Insira sua chave de acesso para ativar a IA:", type="password")
+        # Adicionado o parâmetro 'key' único para garantir o correto funcionamento do componente
+        senha_digitada = st.text_input("Insira sua chave de acesso para ativar a IA:", type="password", key="login_pass_input")
         if st.button("ATIVAR INTELIGÊNCIA FINANCEIRA", use_container_width=True):
             if senha_digitada == SENHA_CORRETA:
                 st.session_state["autenticado"] = True
@@ -44,7 +51,7 @@ if not st.session_state["autenticado"]:
     st.stop()
 
 # --------------------------------------------------------
-# PROCESSAMENTO DE DADOS FINANCEIROS REAIS
+# 3. ALGORITMO E CRONOGRAMA DE DADOS FINANCEIROS REAIS
 # --------------------------------------------------------
 def calcular_rsi(series, periods=14):
     delta = series.diff()
@@ -62,7 +69,7 @@ def buscar_dados_reais():
         try:
             df_ticker = dados[t]
             preco_atual = float(df_ticker["Close"].iloc[-1])
-            preco_inicio_ano = float(df_ticker["Close"].iloc[0])
+            preco_inicio_ano = float(df_ticker["Close"].iloc)
             ganho_anual = ((preco_atual - preco_inicio_ano) / preco_inicio_ano) * 100
             rsi_valores = calcular_rsi(df_ticker["Close"])
             rsi_atual = float(rsi_valores.iloc[-1])
@@ -78,12 +85,12 @@ def buscar_dados_reais():
     return pd.DataFrame(lista_final)
 
 # --------------------------------------------------------
-# 2. INTERFACE VISUAL DO APLICATIVO
+# 4. INTERFACE VISUAL DO APLICATIVO (APÓS LOGIN CORRETO)
 # --------------------------------------------------------
 st.title("📈 Painel IA Trader - Monitoramento Avançado")
 st.write("Configurações táticas e tabelas automatizadas organizadas do melhor ao pior.")
 
-# Menu de Capital na barra lateral esquerda
+# Menu de moedas e capitalização na barra lateral esquerda
 st.sidebar.header("💰 Planejamento de Capital")
 fase = st.sidebar.selectbox("Fase do Plano de Depósitos:", ["Fase 1: R$ 1.000 Mensais (BRL)", "Fase 2: € 1.000 na França (EUR)"])
 
@@ -99,7 +106,7 @@ else:
 with st.spinner("Atualizando tabelas de Wall Street..."):
     df_mercado = buscar_dados_reais()
 
-# TABELAS DE MERCADO DO MELHOR AO PIOR
+# EXIBIÇÃO EM TABELAS ORGANIZADAS DO MELHOR AO PIOR
 st.header("📊 Filtros de Seleção do Algoritmo")
 aba1, aba2 = st.tabs(["🎯 Filtro 1: Melhor Preço para Comprar", "🔥 Filtro 2: As que Ganham Mais"])
 
@@ -113,14 +120,14 @@ with aba2:
     df_momentum = df_mercado.sort_values(by="Ganho Recente % (Momentum)", ascending=False)
     st.dataframe(df_momentum.reset_index(drop=True), use_container_width=True)
 
-# CALCULADORA AUTOMÁTICA DE COMPRA/VENDA E GESTÃO DE RISCO
+# SIMULADOR E CALCULADORA DE GERENCIAMENTO DE RISCO
 st.header("🧮 Simulador de Execução de Ordens")
 acao_selecionada = st.selectbox("Selecione a ação para calcular sua ordem:", df_mercado["Ação (Ticker)"].tolist())
 
-row = df_mercado[df_mercado["Ação (Ticker)"] == acao_selecionada].iloc[0]
+row = df_mercado[df_mercado["Ação (Ticker)"] == acao_selecionada].iloc
 preco_acao = row["Preço Atual (USD)"]
 
-# Divide o dinheiro por 3 ativos para segurança (diversificação)
+# Estratégia de divisão por 3 ativos para controle de perdas
 capital_por_acao = capital_disponivel_usd / 3.0
 quantidade_acoes = capital_por_acao / preco_acao
 preco_stop, preco_alvo = preco_acao * 0.94, preco_acao * 1.12
