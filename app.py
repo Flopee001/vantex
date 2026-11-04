@@ -21,7 +21,7 @@ st.markdown(f"""
         OneSignal.init({
           appId: "{ONESIGNAL_APP_ID}",
           safari_web_id: "web.onesignal.auto.ia_trader_ezequiel",
-          notifyButton: { enable: true }
+          notifyButton: { enable: true })
     </script>
 """, unsafe_allow_html=True)
 
